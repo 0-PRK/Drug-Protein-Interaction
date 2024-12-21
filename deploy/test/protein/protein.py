@@ -1,6 +1,5 @@
 from Bio import ExPASy
 from Bio import SwissProt
-# from transformers import ProteinBertModel
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 import numpy as np
 

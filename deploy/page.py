@@ -1,6 +1,7 @@
 import streamlit as st
 
 
+
 def main():
     st.title("Drug-Protein Interaction Prediction")
     st.write("Powered by Artificial Intelligence")
