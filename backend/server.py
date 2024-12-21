@@ -16,8 +16,16 @@ class InferencePayload(BaseModel):
 def read_root():
     return {"Hello": "World"}
 
-@app.get("/inference")
+@app.post("/inference")
 async def get_inference(payload: InferencePayload):
-    predicted_class, confidence_scores = inference()
-    return {"predicted_class":predicted_class, "confidence_score":confidence_scores}
+    try:
+        predicted_class, confidence_scores = inference(payload.compound_smile,payload.protein_sequence)
+    except:
+        return{"message":"Error while inferring."}
+    return {"predicted_class":predicted_class.tolist(), "confidence_score":confidence_scores.tolist()}
+
+
+
     
+
+
