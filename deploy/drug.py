@@ -8,14 +8,6 @@ import pandas as pd
 import py3Dmol
 import pubchempy as pcp
 
-def get_smiles_features(smiles: str):
-    mol = Chem.MolFromSmiles(smiles)
-    if mol:
-        molecular_weight = Descriptors.MolWt(mol)
-        logP = Descriptors.MolLogP(mol)
-        return {'molecular_weight': molecular_weight, 'logP': logP}
-    return None
-
 def get_drug_details(smiles):
     # Fetch compound details from PubChem
     try:
@@ -153,6 +145,83 @@ def morgan_fingerprint_heatmap(smilesList:list):
             sns.heatmap([morgan_fp], cmap='viridis', cbar=False, xticklabels=False, yticklabels=[smiles])
             plt.title(f"Morgan Fingerprint for {smiles}")
             plt.show()
+
+def bar_plot(features, feature_names):
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.barh(feature_names, features, color='skyblue')
+    ax.set_xlabel("Feature Values")
+    ax.set_title("Drug Feature Bar Plot")
+    return fig
+
+def pie_chart(features, feature_names):
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.pie(features, labels=feature_names, autopct='%1.1f%%', startangle=140, colors=plt.cm.Paired.colors)
+    ax.set_title("Feature Proportions")
+    return fig
+
+import plotly.graph_objects as go
+import plotly.express as px
+
+def interactive_radar(features, feature_names):
+    if 'MolWt' in feature_names:
+        molwt_index = feature_names.index('MolWt')
+        features = [f for i, f in enumerate(features) if i != molwt_index]
+        feature_names = [f for i, f in enumerate(feature_names) if i != molwt_index]
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatterpolar(
+        r=features,  # Close the loop
+        theta=feature_names,  # Close the loop
+        fill='toself',
+        name='Features'
+    ))
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, max(features)]
+            )
+        ),
+        showlegend=False,
+        title="Interactive Radar Chart"
+    )
+    return fig
+
+def interactive_bar(features, feature_names):
+    if 'MolWt' in feature_names:
+        molwt_index = feature_names.index('MolWt')
+        features = [f for i, f in enumerate(features) if i != molwt_index]
+        feature_names = [f for i, f in enumerate(feature_names) if i != molwt_index]
+    # Create a DataFrame for better Plotly integration
+    data = pd.DataFrame({
+        "Feature": feature_names,
+        "Value": features
+    })
+
+    # Create the interactive bar chart
+    fig = px.bar(
+        data,
+        x="Feature",
+        y="Value",
+        title="Drug Feature Bar Plot",
+        labels={"Value": "Feature Value", "Feature": "Feature Name"},
+        text="Value",
+    )
+    
+    # Add hover and layout customization
+    fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+    fig.update_layout(
+        xaxis_title="Feature",
+        yaxis_title="Value",
+        showlegend=False,
+        height=400
+    )
+    
+    return fig
+
+
 
 
 
